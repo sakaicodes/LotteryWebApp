@@ -19,6 +19,31 @@ def index():
     return render_template('main/index.html')
 
 
+@app.errorhandler(400)
+def bad_request(error):
+    return render_template('400.html')
+
+
+@app.errorhandler(403)
+def bad_request(error):
+    return render_template('403.html')
+
+
+@app.errorhandler(404)
+def bad_request(error):
+    return render_template('404.html')
+
+
+@app.errorhandler(500)
+def bad_request(error):
+    return render_template('500.html')
+
+
+@app.errorhandler(503)
+def bad_request(error):
+    return render_template('503.html')
+
+
 # BLUEPRINTS
 # import blueprints
 from users.views import users_blueprint
