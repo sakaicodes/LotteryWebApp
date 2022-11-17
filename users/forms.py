@@ -12,12 +12,14 @@ def forbidden_chars(form, field):
             raise ValidationError(f"Char {char} is not allowed")
 
 
+# regex validator for phone number
 def phone_num_check(self, data_field):
     p = re.compile(r'(\d{4}-\d{3}-\d{4}$)')
     if not p.match(data_field.data):
         raise ValidationError("Phone number must be in the form XXXX-XXX-XXXX")
 
 
+# regex validator for the password field
 def password_validation(self, data_field):
     p = re.compile(r'(?=.*\d)(?=.*[a-z])(?=.*[A-Z])')
     if not p.match(data_field.data):
