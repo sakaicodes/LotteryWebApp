@@ -1,6 +1,9 @@
 from datetime import datetime
+
+from cryptography.fernet import Fernet
 from flask_login import UserMixin
 from app import db, app
+import bcrypt
 
 
 class User(db.Model, UserMixin):
@@ -17,6 +20,7 @@ class User(db.Model, UserMixin):
     lastname = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(100), nullable=False, default='user')
+    postkey = db.Column(db.BLOB)
 
     # Define the relationship to Draw
     draws = db.relationship('Draw')
@@ -26,9 +30,9 @@ class User(db.Model, UserMixin):
         self.firstname = firstname
         self.lastname = lastname
         self.phone = phone
-        self.password = password
+        self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self.role = role
-
+        self.postkey = Fernet.generate_key()
 
 
 class Draw(db.Model):
@@ -76,5 +80,3 @@ def init_db():
 
         db.session.add(admin)
         db.session.commit()
-
-

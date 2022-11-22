@@ -21,7 +21,7 @@ def phone_num_check(self, data_field):
 
 # regex validator for the password field
 def password_validation(self, data_field):
-    p = re.compile(r'(?=.*\d)(?=.*[a-z])(?=.*[A-Z])')
+    p = re.compile(r'(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)')
     if not p.match(data_field.data):
         raise ValidationError("Password must contain at least 1 lowercase word character, 1 uppercase word character, "
                               "and 1 special character (non-word character)")
