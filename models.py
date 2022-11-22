@@ -20,7 +20,7 @@ class User(db.Model, UserMixin):
     lastname = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(100), nullable=False, default='user')
-    postkey = db.Column(db.BLOB)
+    lotterykey = db.Column(db.BLOB)
 
     # Define the relationship to Draw
     draws = db.relationship('Draw')
@@ -32,7 +32,7 @@ class User(db.Model, UserMixin):
         self.phone = phone
         self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self.role = role
-        self.postkey = Fernet.generate_key()
+        self.lotterykey = Fernet.generate_key()
 
 
 class Draw(db.Model):
