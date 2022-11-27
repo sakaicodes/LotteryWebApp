@@ -28,6 +28,7 @@ class User(db.Model, UserMixin):
     lastname = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(100), nullable=False, default='user')
+    lottery_key = db.Column(db.BLOB)
 
     # Define the relationship to Draw
     draws = db.relationship('Draw')
@@ -39,7 +40,7 @@ class User(db.Model, UserMixin):
         self.phone = phone
         self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self.role = role
-
+        self.lottery_key = Fernet.generate_key()
 
 
 class Draw(db.Model):
@@ -65,8 +66,6 @@ class Draw(db.Model):
     # Lottery round that draw is used
     lottery_round = db.Column(db.Integer, nullable=False, default=0)
 
-    # Cryptography
-    lottery_key = db.Column(db.BLOB)
 
     def __init__(self, user_id, numbers, master_draw, lottery_round):
         self.user_id = user_id
@@ -75,7 +74,7 @@ class Draw(db.Model):
         self.matches_master = False
         self.master_draw = master_draw
         self.lottery_round = lottery_round
-        self.lottery_key = Fernet.generate_key()
+
 
 
 def init_db():
