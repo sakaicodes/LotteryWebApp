@@ -5,13 +5,15 @@ from flask_login import UserMixin
 from app import db, app
 import bcrypt
 
-
-def encrypt(data, numbers):
-    return Fernet(numbers).encrypt(bytes(data, 'utf-8'))
+lottery_key = Fernet.generate_key()
 
 
-def decrypt(data, numbers):
-    return Fernet(numbers).decrypt(data).decode('utf-8')
+def encrypt(data, lottery_key):
+    return Fernet(lottery_key).encrypt(bytes(data, 'utf-8'))
+
+
+def decrypt(data, lottery_key):
+    return Fernet(lottery_key).decrypt(data).decode('utf-8')
 
 
 class User(db.Model, UserMixin):
@@ -40,7 +42,7 @@ class User(db.Model, UserMixin):
         self.phone = phone
         self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self.role = role
-        self.lottery_key = Fernet.generate_key()
+        self.lottery_key = lottery_key
 
 
 class Draw(db.Model):
@@ -66,7 +68,6 @@ class Draw(db.Model):
     # Lottery round that draw is used
     lottery_round = db.Column(db.Integer, nullable=False, default=0)
 
-
     def __init__(self, user_id, numbers, master_draw, lottery_round):
         self.user_id = user_id
         self.numbers = numbers
@@ -74,7 +75,6 @@ class Draw(db.Model):
         self.matches_master = False
         self.master_draw = master_draw
         self.lottery_round = lottery_round
-
 
 
 def init_db():
