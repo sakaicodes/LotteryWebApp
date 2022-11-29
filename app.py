@@ -1,4 +1,6 @@
 # IMPORTS
+import os
+
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 
@@ -55,6 +57,8 @@ app.register_blueprint(users_blueprint)
 app.register_blueprint(admin_blueprint)
 app.register_blueprint(lottery_blueprint)
 
+app.config['RECAPTCHA_PUBLIC_KEY'] = os.getenv('RECAPTCHA_PUBLIC_KEY')
+app.config['RECAPTCHA_PRIVATE_KEY'] = os.getenv('RECAPTCHA_PRIVATE_KEY')
 
 if __name__ == "__main__":
     app.run()
