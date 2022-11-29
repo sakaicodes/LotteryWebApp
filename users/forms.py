@@ -35,3 +35,9 @@ class RegisterForm(FlaskForm):
     password = PasswordField(validators=[DataRequired(), Length(min=6, max=12), password_validation])
     confirm_password = PasswordField(validators=[DataRequired(), EqualTo("password", message="Passwords do not match")])
     submit = SubmitField(validators=[DataRequired()])
+
+
+class LoginForm(FlaskForm):
+    username = EmailField(validators=[DataRequired()])
+    password = PasswordField(validators=[DataRequired()])
+    submit = SubmitField()
