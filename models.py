@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pyotp as pyotp
 from cryptography.fernet import Fernet
 from flask_login import UserMixin
 from app import db, app
@@ -31,6 +32,7 @@ class User(db.Model, UserMixin):
     phone = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(100), nullable=False, default='user')
     lottery_key = db.Column(db.BLOB)
+    pin_key = db.Column(db.String(100), nullable=False)
 
     # Define the relationship to Draw
     draws = db.relationship('Draw')
@@ -43,6 +45,7 @@ class User(db.Model, UserMixin):
         self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self.role = role
         self.lottery_key = lottery_key
+        self.pin_key = pyotp.random_base32()
 
 
 class Draw(db.Model):
