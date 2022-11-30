@@ -3,4 +3,5 @@ flask_sqlalchemy
 flask_login
 flask_wtf
 bcrypt
-cryptography
+cryptography==38.0.4
+pyotp
