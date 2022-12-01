@@ -53,7 +53,9 @@ def register():
 def login():
     if not session.get('authentication_attempts'):
         session['authentication_attempts'] = 0
+
     form = LoginForm()
+
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.username.data).first()
         # Authenticating user password, username and pin_key
@@ -61,6 +63,7 @@ def login():
                 or not pyotp.TOTP(user.pin_key).verify(form.pin.data):
             # authentication attempts
             session['authentication_attempts'] += 1
+
             if session.get('authentication_attempts') >= 3:
                 # sends reset link to user after 3 failed attempts
                 flash(Markup('Number of incorrect login attempts exceeded. '
