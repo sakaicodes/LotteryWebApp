@@ -2,6 +2,7 @@
 import bcrypt
 import pyotp
 from flask import Blueprint, render_template, flash, redirect, url_for, session
+from flask_login import login_user, logout_user
 from markupsafe import Markup
 
 from app import db
@@ -69,6 +70,7 @@ def login():
                   .format(3 - session.get('authentication_attempts')))
             return render_template('users/login.html', form=form)
         else:
+            login_user(user)
             return redirect(url_for('users.profile'))
     return render_template('users/login.html', form=form)
 
@@ -78,6 +80,13 @@ def login():
 def reset():
     session['authentication_attempts'] = 0
     return redirect(url_for('users.login'))
+
+
+# logout user function
+@users_blueprint.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 
 # view user profile
