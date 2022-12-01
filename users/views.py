@@ -1,6 +1,8 @@
 # IMPORTS
 import bcrypt
-from flask import Blueprint, render_template, flash, redirect, url_for
+import pyotp
+from flask import Blueprint, render_template, flash, redirect, url_for, session
+from markupsafe import Markup
 
 from app import db
 from models import User
@@ -48,15 +50,34 @@ def register():
 # view user login
 @users_blueprint.route('/login', methods=['GET', 'POST'])
 def login():
+    if not session.get('authentication_attempts'):
+        session['authentication_attempts'] = 0
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.username.data).first()
-        if not user or not bcrypt.checkpw(form.password.data.encode('utf-8'), user.password):
-            flash('Please check your login details and try again')
+        # Authenticating user password, username and pin_key
+        if not user or not bcrypt.checkpw(form.password.data.encode('utf-8'), user.password) \
+                or not pyotp.TOTP(user.pin_key).verify(form.pin.data):
+            # authentication attempts
+            session['authentication_attempts'] += 1
+            if session.get('authentication_attempts') >= 3:
+                # sends reset link to user after 3 failed attempts
+                flash(Markup('Number of incorrect login attempts exceeded. '
+                             'Please click <a href="/reset">here</a> to reset.'))
+                return render_template('users/login.html')
+            flash('Please check your login details and try again, {} login attempts remaining'
+                  .format(3 - session.get('authentication_attempts')))
             return render_template('users/login.html', form=form)
         else:
             return redirect(url_for('users.profile'))
     return render_template('users/login.html', form=form)
+
+
+# reset user login attempts
+@users_blueprint.route('/reset')
+def reset():
+    session['authentication_attempts'] = 0
+    return redirect(url_for('users.login'))
 
 
 # view user profile
