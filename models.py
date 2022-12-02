@@ -6,7 +6,7 @@ from flask_login import UserMixin
 from app import db, app
 import bcrypt
 
-lottery_key = Fernet.generate_key()
+# lottery_key = Fernet.generate_key()
 
 
 def encrypt(data, lottery_key):
@@ -44,7 +44,7 @@ class User(db.Model, UserMixin):
         self.phone = phone
         self.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self.role = role
-        self.lottery_key = lottery_key
+        self.lottery_key = Fernet.generate_key()
         self.pin_key = pyotp.random_base32()
 
 

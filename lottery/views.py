@@ -4,7 +4,7 @@ import logging
 from flask import Blueprint, render_template, request, flash
 
 from app import db
-from models import Draw, encrypt, lottery_key
+from models import Draw, encrypt, User
 
 # CONFIG
 lottery_blueprint = Blueprint('lottery', __name__, template_folder='templates')
@@ -23,6 +23,12 @@ def add_draw():
     for i in range(6):
         submitted_draw += request.form.get('no' + str(i + 1)) + ' '
     submitted_draw.strip()
+
+    # gets user id from session
+    user = User.query.filter_by(id=1).first()
+
+    # get lottery_key from user
+    lottery_key = user.lottery_key
 
     # create a new draw with the form data.
     new_draw = Draw(user_id=1, numbers=encrypt(submitted_draw, lottery_key), master_draw=False, lottery_round=0)  # TODO: update user_id [user_id=1 is a placeholder]
@@ -75,5 +81,3 @@ def play_again():
 
     flash("All played draws deleted.")
     return lottery()
-
-
