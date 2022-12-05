@@ -2,7 +2,7 @@
 import logging
 
 from flask import Blueprint, render_template, request, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from app import db
 from models import Draw, encrypt, User, decrypt
@@ -27,14 +27,15 @@ def add_draw():
         submitted_draw += request.form.get('no' + str(i + 1)) + ' '
     submitted_draw.strip()
 
-    # gets user id from session
-    user = User.query.filter_by(id=1).first()
-
-    # get lottery_key from user
-    lottery_key = user.lottery_key
+    # # gets user id from session
+    # user = User.query.filter_by(id=1).first()
+    #
+    # # get lottery_key from user
+    # lottery_key = user.lottery_key
 
     # create a new draw with the form data.
-    new_draw = Draw(user_id=1, numbers=encrypt(submitted_draw, lottery_key), master_draw=False, lottery_round=0)  # TODO: update user_id [user_id=1 is a placeholder]
+    new_draw = Draw(user_id=current_user.id, numbers=encrypt(submitted_draw, current_user.lottery_key)
+                    , master_draw=False, lottery_round=0)
 
     # add the new draw to the database
     db.session.add(new_draw)
@@ -51,7 +52,7 @@ def add_draw():
 def view_draws():
 
     # get all draws that have not been played [played=0]
-    playable_draws = Draw.query.filter_by(been_played=False).all()  # TODO: filter playable draws for current user
+    playable_draws = Draw.query.filter_by(been_played=False, user_id=current_user.id).all()
 
     # if playable draws exist
     if len(playable_draws) != 0:
