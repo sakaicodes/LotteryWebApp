@@ -97,7 +97,7 @@ def logout():
 @users_blueprint.route('/profile')
 @login_required
 def profile():
-    return render_template('users/profile.html', name="PLACEHOLDER FOR FIRSTNAME")
+    return render_template('users/profile.html', name=current_user.firstname)
 
 
 # view user account
