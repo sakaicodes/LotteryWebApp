@@ -5,7 +5,7 @@ from flask import Blueprint, render_template, request, flash
 from flask_login import login_required, current_user
 
 from app import db
-from models import Draw, encrypt, User, decrypt
+from models import Draw, encrypt,decrypt
 
 # CONFIG
 lottery_blueprint = Blueprint('lottery', __name__, template_folder='templates')
@@ -54,6 +54,11 @@ def view_draws():
     # get all draws that have not been played [played=0]
     playable_draws = Draw.query.filter_by(been_played=False, user_id=current_user.id).all()
 
+    # loop through all playable draws and decrypt them
+    for draw in playable_draws:
+        draw.numbers = decrypt(draw.numbers, current_user.lottery_key)
+
+    print(playable_draws)
     # if playable draws exist
     if len(playable_draws) != 0:
         # re-render lottery page with playable draws
