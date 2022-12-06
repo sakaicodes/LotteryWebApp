@@ -90,6 +90,8 @@ def reset():
 @login_required
 def logout():
     logout_user()
+    # login attempts set to 0 after logging out
+    session['authentication_attempts'] = 0
     return redirect(url_for('index'))
 
 
