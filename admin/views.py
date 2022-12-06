@@ -1,9 +1,9 @@
 # IMPORTS
 from flask import Blueprint, render_template, request, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from app import db
-from models import User, Draw
+from models import User, Draw, encrypt, decrypt
 
 # CONFIG
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
@@ -30,7 +30,6 @@ def view_all_users():
 @admin_blueprint.route('/create_winning_draw', methods=['POST'])
 @login_required
 def create_winning_draw():
-
     # get current winning draw
     current_winning_draw = Draw.query.filter_by(master_draw=True).first()
     lottery_round = 1
@@ -52,7 +51,8 @@ def create_winning_draw():
     submitted_draw.strip()
 
     # create a new draw object with the form data.
-    new_winning_draw = Draw(user_id=0, numbers=submitted_draw, master_draw=True, lottery_round=lottery_round)
+    new_winning_draw = Draw(user_id=0, numbers=encrypt(submitted_draw, current_user.lottery_key)
+                            , master_draw=True, lottery_round=lottery_round)
 
     # add the new winning draw to the database
     db.session.add(new_winning_draw)
@@ -67,10 +67,10 @@ def create_winning_draw():
 @admin_blueprint.route('/view_winning_draw', methods=['POST'])
 @login_required
 def view_winning_draw():
-
     # get winning draw from DB
-    current_winning_draw = Draw.query.filter_by(master_draw=True,been_played=False).first()
-
+    current_winning_draw = Draw.query.filter_by(master_draw=True, been_played=False).first()
+    # decrypting winning draw
+    current_winning_draw.numbers = decrypt(current_winning_draw.numbers, current_user.lottery_key)
     # if a winning draw exists
     if current_winning_draw:
         # re-render admin page with current winning draw and lottery round
@@ -85,7 +85,6 @@ def view_winning_draw():
 @admin_blueprint.route('/run_lottery', methods=['POST'])
 @login_required
 def run_lottery():
-
     # get current unplayed winning draw
     current_winning_draw = Draw.query.filter_by(master_draw=True, been_played=False).first()
 
@@ -112,7 +111,6 @@ def run_lottery():
 
                 # if user draw matches current unplayed winning draw
                 if draw.numbers == current_winning_draw.numbers:
-
                     # add details of winner to list of results
                     results.append((current_winning_draw.lottery_round, draw.numbers, draw.user_id, user.email))
 
