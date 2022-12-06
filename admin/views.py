@@ -69,12 +69,16 @@ def create_winning_draw():
 def view_winning_draw():
     # get winning draw from DB
     current_winning_draw = Draw.query.filter_by(master_draw=True, been_played=False).first()
-    # decrypting winning draw
-    current_winning_draw.numbers = decrypt(current_winning_draw.numbers, current_user.lottery_key)
+
     # if a winning draw exists
     if current_winning_draw:
+
+        # decrypting winning draw
+        current_winning_draw.numbers = decrypt(current_winning_draw.numbers, current_user.lottery_key)
+
         # re-render admin page with current winning draw and lottery round
-        return render_template('admin/admin.html', winning_draw=current_winning_draw, name="PLACEHOLDER FOR FIRSTNAME")
+        return render_template('admin/admin.html', winning_draw=current_winning_draw
+                               , name='{} {}'.format(current_user.firstname, current_user.lastname))
 
     # if no winning draw exists, rerender admin page
     flash("No valid winning draw exists. Please add new winning draw.")
@@ -109,10 +113,16 @@ def run_lottery():
                 # get the owning user (instance/object)
                 user = User.query.filter_by(id=draw.user_id).first()
 
+                # decrypt winning draw
+                decrypted_winning_draw = decrypt(current_winning_draw.numbers, current_user.lottery_key)
+
+                # decrypt user draw
+                decrypted_user_draw = decrypt(draw.numbers, user.lottery_key)
+
                 # if user draw matches current unplayed winning draw
-                if draw.numbers == current_winning_draw.numbers:
+                if decrypted_user_draw == decrypted_winning_draw:
                     # add details of winner to list of results
-                    results.append((current_winning_draw.lottery_round, draw.numbers, draw.user_id, user.email))
+                    results.append((current_winning_draw.lottery_round, decrypted_user_draw, draw.user_id, user.email))
 
                     # update draw as a winning draw (this will be used to highlight winning draws in the user's
                     # lottery page)
@@ -132,7 +142,7 @@ def run_lottery():
             if len(results) == 0:
                 flash("No winners.")
 
-            return render_template('admin/admin.html', results=results, name="PLACEHOLDER FOR FIRSTNAME")
+            return render_template('admin/admin.html', results=results, name=user.firstname)
 
         flash("No user draws entered.")
         return admin()
