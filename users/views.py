@@ -8,6 +8,7 @@ from markupsafe import Markup
 from app import db
 from models import User
 from users.forms import RegisterForm, LoginForm
+from datetime import datetime
 
 # CONFIG
 users_blueprint = Blueprint('users', __name__, template_folder='templates')
@@ -74,6 +75,10 @@ def login():
             return render_template('users/login.html', form=form)
         else:
             login_user(user)
+            user.last_login = user.current_login
+            user.current_login = datetime.now()
+            db.session.add(user)
+            db.session.commit()
             if current_user.role == 'user':
                 return redirect(url_for('users.profile'))
             else:
