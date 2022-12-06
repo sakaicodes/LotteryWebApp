@@ -26,7 +26,7 @@ def add_draw():
     for i in range(6):
         submitted_draw += request.form.get('no' + str(i + 1)) + ' '
     submitted_draw.strip()
-
+    print(current_user.id)
     # create a new draw with the form data.
     new_draw = Draw(user_id=current_user.id, numbers=encrypt(submitted_draw, current_user.lottery_key)
                     , master_draw=False, lottery_round=0)
@@ -52,7 +52,6 @@ def view_draws():
     for draw in playable_draws:
         draw.numbers = decrypt(draw.numbers, current_user.lottery_key)
 
-    print(playable_draws)
     # if playable draws exist
     if len(playable_draws) != 0:
         # re-render lottery page with playable draws
