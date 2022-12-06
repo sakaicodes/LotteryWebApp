@@ -74,7 +74,10 @@ def login():
             return render_template('users/login.html', form=form)
         else:
             login_user(user)
-            return redirect(url_for('users.profile'))
+            if current_user.role == 'user':
+                return redirect(url_for('users.profile'))
+            else:
+                return redirect(url_for('admin.admin'))
     return render_template('users/login.html', form=form)
 
 
