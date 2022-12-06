@@ -27,12 +27,6 @@ def add_draw():
         submitted_draw += request.form.get('no' + str(i + 1)) + ' '
     submitted_draw.strip()
 
-    # # gets user id from session
-    # user = User.query.filter_by(id=1).first()
-    #
-    # # get lottery_key from user
-    # lottery_key = user.lottery_key
-
     # create a new draw with the form data.
     new_draw = Draw(user_id=current_user.id, numbers=encrypt(submitted_draw, current_user.lottery_key)
                     , master_draw=False, lottery_round=0)
