@@ -51,7 +51,7 @@ def create_winning_draw():
     submitted_draw.strip()
 
     # create a new draw object with the form data.
-    new_winning_draw = Draw(user_id=0, numbers=encrypt(submitted_draw, current_user.lottery_key)
+    new_winning_draw = Draw(user_id=current_user.id, numbers=encrypt(submitted_draw, current_user.lottery_key)
                             , master_draw=True, lottery_round=lottery_round)
 
     # add the new winning draw to the database
