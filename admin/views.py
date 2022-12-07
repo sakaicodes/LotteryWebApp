@@ -1,8 +1,9 @@
 # IMPORTS
+
 from flask import Blueprint, render_template, request, flash
 from flask_login import login_required, current_user
 
-from app import db
+from app import db, requires_roles
 from models import User, Draw, encrypt, decrypt
 
 # CONFIG
@@ -13,8 +14,9 @@ admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 # view admin homepage
 @admin_blueprint.route('/admin')
 @login_required
+@requires_roles('admin')
 def admin():
-    return render_template('admin/admin.html', name="PLACEHOLDER FOR FIRSTNAME")
+    return render_template('admin/admin.html', name=current_user.firstname)
 
 
 # view all registered users

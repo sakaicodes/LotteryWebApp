@@ -1,9 +1,10 @@
 # IMPORTS
 import os
 import logging
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
+from functools import wraps
 
 
 # Defining filter class for logger
@@ -28,6 +29,24 @@ file_handler.setLevel(logging.WARNING)
 logger.addHandler(file_handler)
 # Setting level of file handler to Debug
 logger.setLevel(logging.DEBUG)
+
+
+#  function allows for role specific functions using requires role decorator
+def requires_roles(*roles):
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if current_user.role not in roles:
+                logging.warning('SECURITY - Invalid Access [%s, %s, %s, %s]',
+                                current_user.id,
+                                current_user.email,
+                                current_user.role,
+                                request.remote_addr
+                                )
+                return render_template('403.html')
+            return f(*args, **kwargs)
+        return wrapped
+    return wrapper
 
 
 # CONFIG
