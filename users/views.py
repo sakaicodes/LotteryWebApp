@@ -1,7 +1,8 @@
 # IMPORTS
 import bcrypt
+import logging
 import pyotp
-from flask import Blueprint, render_template, flash, redirect, url_for, session
+from flask import Blueprint, render_template, flash, redirect, url_for, session, request
 from flask_login import login_user, logout_user, login_required, current_user
 from markupsafe import Markup
 
@@ -39,6 +40,12 @@ def register():
                         password=form.password.data,
                         role='user')
 
+        # logging  user registration
+        logging.warning('SECURITY - User registration [%s, %s]',
+                        form.email.data,
+                        request.remote_addr
+                        )
+
         # add the new user to the database
         db.session.add(new_user)
         db.session.commit()
@@ -65,6 +72,12 @@ def login():
             # authentication attempts
             session['authentication_attempts'] += 1
 
+            # logging invalid logins to logger file
+            logging.warning('SECURITY - Invalid login [%s, %s]',
+                            user.email,
+                            request.remote_addr
+                            )
+
             if session.get('authentication_attempts') >= 3:
                 # sends reset link to user after 3 failed attempts
                 flash(Markup('Number of incorrect login attempts exceeded. '
@@ -77,6 +90,14 @@ def login():
             login_user(user)
             user.last_login = user.current_login
             user.current_login = datetime.now()
+
+            # writing user login to logger file
+            logging.warning('SECURITY - Log in [%s, %s, %s]',
+                            current_user.id,
+                            current_user.email,
+                            request.remote_addr
+                            )
+
             db.session.add(user)
             db.session.commit()
             if current_user.role == 'user':
@@ -97,6 +118,12 @@ def reset():
 @users_blueprint.route('/logout')
 @login_required
 def logout():
+    # writing user logout to logger file
+    logging.warning('SECURITY - Log out [%s, %s, %s]',
+                    current_user.id,
+                    current_user.email,
+                    request.remote_addr
+                    )
     logout_user()
     # login attempts set to 0 after logging out
     session['authentication_attempts'] = 0
