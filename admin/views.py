@@ -16,7 +16,7 @@ admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 @login_required
 @requires_roles('admin')
 def admin():
-    return render_template('admin/admin.html', name=current_user.firstname)
+    return render_template('admin/admin.html', name='{} {}'.format(current_user.firstname, current_user.lastname))
 
 
 # view all registered users
@@ -25,7 +25,8 @@ def admin():
 def view_all_users():
     current_users = User.query.filter_by(role='user').all()
 
-    return render_template('admin/admin.html', name="PLACEHOLDER FOR FIRSTNAME", current_users=current_users)
+    return render_template('admin/admin.html', name='{} {}'.format(current_user.firstname, current_user.lastname)
+                           , current_users=current_users)
 
 
 # create a new winning draw
