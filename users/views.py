@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, flash, redirect, url_for, session,
 from flask_login import login_user, logout_user, login_required, current_user
 from markupsafe import Markup
 
-from app import db
+from app import db, requires_roles
 from models import User
 from users.forms import RegisterForm, LoginForm
 from datetime import datetime
@@ -117,6 +117,7 @@ def reset():
 # logout user function
 @users_blueprint.route('/logout')
 @login_required
+@requires_roles('user', 'admin')
 def logout():
     # writing user logout to logger file
     logging.warning('SECURITY - Log out [%s, %s, %s]',
@@ -133,6 +134,7 @@ def logout():
 # view user profile
 @users_blueprint.route('/profile')
 @login_required
+@requires_roles('user')
 def profile():
     return render_template('users/profile.html', name=current_user.firstname)
 
@@ -140,6 +142,7 @@ def profile():
 # view user account
 @users_blueprint.route('/account')
 @login_required
+@requires_roles('user', 'admin')
 def account():
     return render_template('users/account.html',
                            acc_no=current_user.id,
