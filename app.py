@@ -1,9 +1,34 @@
 # IMPORTS
 import os
-
+import logging
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+
+
+# Defining filter class for logger
+class SecurityFilter(logging.Filter):
+    def filter(self, record):
+        return 'SECURITY' in record.getMessage()
+
+
+# Initialising root logger
+logger = logging.getLogger()
+# Initialising a file handler to log events to
+file_handler = logging.FileHandler('lottery.log', 'a')
+# Adding filter to file handler
+file_handler.addFilter(SecurityFilter())
+# Formatter for log file
+formatter = logging.Formatter('%(asctime)s : %(message)s', '%m/%d/%Y %I:%M:%S %p')
+# Adding formatter to file handler
+file_handler.setFormatter(formatter)
+# Setting level of file handler to Warning
+file_handler.setLevel(logging.WARNING)
+# Adding file handler to logger
+logger.addHandler(file_handler)
+# Setting level of file handler to Debug
+logger.setLevel(logging.DEBUG)
+
 
 # CONFIG
 app = Flask(__name__)
