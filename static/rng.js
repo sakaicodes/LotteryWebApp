@@ -1,6 +1,5 @@
 // JavaScript function to generate 6 random unique values in order and populate form
 function luckyDip() {
-
     // create empty set
     let draw = new Set();
 
@@ -8,11 +7,22 @@ function luckyDip() {
     while (draw.size < 6) {
         min = Math.ceil(1);
         max = Math.floor(60);
-        value = Math.floor(Math.random() * (max - min + 1) + min);
+
+        // creates  buffer of length 1 for 1 value in lottery numbers
+        randomBuffer = new Uint32Array(1)
+
+        // fills buffer with random value from 32 bit array
+        window.crypto.getRandomValues(randomBuffer);
+
+        csRandomNumber = randomBuffer[0] / (0xFFFFFFFF)
+
+        value = Math.floor(csRandomNumber * (max - min + 1) + min);
 
         // sets cannot contain duplicates so value is only added if it does not exist in set
         draw.add(value)
+
     }
+
 
     // turn set into an array
     let a = Array.from(draw);
