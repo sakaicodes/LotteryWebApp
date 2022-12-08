@@ -17,6 +17,7 @@ class SecurityFilter(logging.Filter):
 # Initialising root logger
 logger = logging.getLogger()
 # Initialising a file handler to log events to
+# Use absolute filepath for testing
 file_handler = logging.FileHandler('lottery.log', 'a')
 # Adding filter to file handler
 file_handler.addFilter(SecurityFilter())
