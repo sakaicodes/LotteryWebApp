@@ -5,3 +5,4 @@ flask_wtf
 bcrypt
 cryptography==38.0.4
 pyotp
+flask_talisman

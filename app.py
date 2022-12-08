@@ -5,6 +5,7 @@ from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from functools import wraps
+from flask_talisman import Talisman
 
 
 # Defining filter class for logger
@@ -45,7 +46,9 @@ def requires_roles(*roles):
                                 )
                 return render_template('403.html')
             return f(*args, **kwargs)
+
         return wrapped
+
     return wrapper
 
 
@@ -58,6 +61,28 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # initialise database
 db = SQLAlchemy(app)
+
+# Custom csp class
+csp = {
+    'default-src': [
+        '\'self\'',
+        'https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css'
+    ],
+    'frame-src': [
+        '\'self\'',
+        'https://www.google.com/recaptcha/',
+        'https://recaptcha.google.com/recaptcha/'
+    ],
+    'script-src': [
+        '\'self\'',
+        '\'unsafe-inline\'',
+        'https://www.google.com/recaptcha/',
+        'https://www.gstatic.com/recaptcha/'
+    ]
+}
+
+# Creating talisman instance with csp
+talisman = Talisman(app, content_security_policy=csp)
 
 
 # HOME PAGE VIEW
